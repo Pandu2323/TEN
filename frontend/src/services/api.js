@@ -1,4 +1,4 @@
-export const API_BASE = import.meta.env.VITE_API_URL || 'http://172.19.143.37:5000/api';
+export const API_BASE = import.meta.env.VITE_API_URL || 'http://127.0.0.1:5000/api';
 
 async function request(path, options = {}) {
   const response = await fetch(`${API_BASE}${path}`, {

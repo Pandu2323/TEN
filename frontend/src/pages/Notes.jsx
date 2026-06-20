@@ -1,10 +1,6 @@
-import { useEffect, useMemo, useState } from 'react';
-import { useAuth } from '../hooks/useAuth.js';
-import { navigate } from '../hooks/useRoute.js';
+import { useMemo, useState } from 'react';
+import NoteCard from '../components/cards/NoteCard.jsx';
 import { useApiCollection } from '../hooks/useApiCollection.js';
-import { useSavedContent } from '../hooks/useSavedContent.js';
-
-const fallbackNotes = [];
 
 const typeOptions = ['All Types', 'PDF', 'Cheat Sheet', 'Notes', 'Source Code'];
 const languageOptions = ['All Languages', 'Java', 'SQL', 'Python', 'Linux', 'JavaScript', 'Git'];
@@ -59,6 +55,9 @@ function normalizeNote(item) {
     fileName: item.fileName || '',
     fileType: item.fileType || '',
     fileData: item.fileData || '',
+    coverImageName: item.coverImageName || item.imageName || '',
+    coverImageType: item.coverImageType || item.imageType || '',
+    coverImageData: item.coverImageData || item.imageData || item.imageUrl || '',
   };
 }
 
@@ -73,15 +72,12 @@ function iconForNote(item) {
 }
 
 export default function Notes() {
-  const auth = useAuth();
   const { items, loading } = useApiCollection('notes');
-  const { savedIds, toggleSaved } = useSavedContent(auth?.token);
   const [query, setQuery] = useState('');
   const [category, setCategory] = useState('all');
   const [type, setType] = useState('All Types');
   const [language, setLanguage] = useState('All Languages');
   const [sort, setSort] = useState('Most Popular');
-  const [preview, setPreview] = useState(null);
 
   const notes = useMemo(() => items.map((item) => normalizeNote(item)), [items]);
   const categories = useMemo(() => {
@@ -106,39 +102,6 @@ export default function Notes() {
       return parseDownloads(b.downloads) - parseDownloads(a.downloads);
     });
   }, [category, language, notes, query, sort, type]);
-
-  const toggleSave = async (id) => {
-    if (!auth?.token) {
-      navigate('/login');
-      return;
-    }
-
-    try {
-      await toggleSaved(id);
-    } catch (_error) {
-      navigate('/login');
-    }
-  };
-
-  const downloadNote = (note) => {
-    const url = note.fileData || URL.createObjectURL(new Blob([
-      note.title,
-      '',
-      note.description,
-      '',
-      `Type: ${note.type}`,
-      `Language: ${note.language}`,
-      `Pages: ${note.pages}`,
-      '',
-      'Topics:',
-      ...note.topics.map((topic) => `- ${topic}`),
-    ], { type: 'text/plain;charset=utf-8' }));
-    const anchor = document.createElement('a');
-    anchor.href = url;
-    anchor.download = note.fileName || `${note.title.toLowerCase().replace(/[^a-z0-9]+/g, '-')}.${note.fileType.includes('pdf') ? 'pdf' : 'txt'}`;
-    anchor.click();
-    if (!note.fileData) URL.revokeObjectURL(url);
-  };
 
   return (
     <div className="relative overflow-hidden bg-[#050817] pt-[70px] text-white">
@@ -222,23 +185,14 @@ export default function Notes() {
             <h2 className="text-lg font-black text-white">Popular Resources</h2>
             <p className="mt-1 text-xs text-slate-400">Hand-picked resources to boost your development skills</p>
           </div>
-          <button type="button" onClick={() => setCategory('all')} className="rounded-[7px] border border-cyan-300/30 px-4 py-2 text-xs font-bold text-cyan-200 transition hover:bg-cyan-300/10">
-            View All
-          </button>
+          <span className="text-xs text-slate-400">{filtered.length} resources</span>
         </div>
 
         {loading && <p className="mb-4 text-sm text-slate-400">Refreshing library...</p>}
         {filtered.length ? (
-          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-5 md:grid-cols-2">
             {filtered.map((note) => (
-              <NoteResourceCard
-                key={note._id}
-                note={note}
-                saved={savedIds.has(note._id)}
-                onToggleSave={toggleSave}
-                onPreview={setPreview}
-                onDownload={downloadNote}
-              />
+              <NoteCard key={note._id} item={note} />
             ))}
           </div>
         ) : (
@@ -248,16 +202,6 @@ export default function Notes() {
           </div>
         )}
       </section>
-
-      {preview && (
-        <PreviewModal
-          note={preview}
-          saved={savedIds.has(preview._id)}
-          onClose={() => setPreview(null)}
-          onToggleSave={toggleSave}
-          onDownload={downloadNote}
-        />
-      )}
     </div>
   );
 }
@@ -300,124 +244,6 @@ function LibraryFeature({ icon, title, text, tone }) {
   );
 }
 
-function NoteResourceCard({ note, saved, onToggleSave, onPreview, onDownload }) {
-  const typeTone = note.type === 'PDF' ? 'text-cyan-300 bg-cyan-300/10 border-cyan-300/20' : note.type === 'Cheat Sheet' ? 'text-violet-300 bg-violet-300/10 border-violet-300/20' : 'text-emerald-300 bg-emerald-300/10 border-emerald-300/20';
-
-  return (
-    <article className="overflow-hidden rounded-[8px] border border-white/10 bg-[#0b1226]/86 shadow-2xl shadow-black/25 transition duration-300 hover:-translate-y-1 hover:border-cyan-300/45">
-      <div className="flex items-center justify-between border-b border-white/8 p-4">
-        <span className={`rounded-[6px] border px-2.5 py-1 text-[11px] font-black uppercase ${typeTone}`}>{note.type}</span>
-        <button
-          type="button"
-          aria-label={saved ? 'Remove saved resource' : 'Save resource'}
-          onClick={() => onToggleSave(note._id)}
-          className={`grid h-8 w-8 place-items-center rounded-[7px] border transition ${saved ? 'border-cyan-300 bg-cyan-300/15 text-cyan-100' : 'border-white/10 text-slate-400 hover:bg-white/10'}`}
-        >
-          <Icon name="file" className={`h-4 w-4 ${saved ? 'fill-current' : ''}`} />
-        </button>
-      </div>
-
-      <div className="p-5">
-        <div className="mx-auto grid h-16 w-16 place-items-center rounded-full bg-gradient-to-br from-cyan-400/25 to-violet-500/25 text-cyan-200 shadow-[0_0_34px_rgba(34,211,238,0.18)]">
-          <Icon name={note.icon} className="h-8 w-8" />
-        </div>
-        <h3 className="mt-4 text-center text-lg font-black leading-snug text-white">{note.title}</h3>
-        <p className="mt-2 min-h-12 text-center text-sm leading-6 text-slate-400">{note.description}</p>
-        <div className="mt-4 flex items-center justify-center gap-3 text-xs text-slate-500">
-          <span>{note.pages} Pages</span>
-          <span className="h-1 w-1 rounded-full bg-slate-600" />
-          <span>{note.downloads} downloads</span>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-2 gap-3 border-t border-white/8 p-4">
-        <button
-          type="button"
-          onClick={() => onDownload(note)}
-          className="inline-flex h-10 items-center justify-center gap-2 rounded-[7px] bg-gradient-to-r from-cyan-300 to-violet-500 px-3 text-xs font-black text-white transition hover:-translate-y-0.5"
-        >
-          <Icon name="download" className="h-4 w-4" /> Download
-        </button>
-        <button
-          type="button"
-          onClick={() => onPreview(note)}
-          className="inline-flex h-10 items-center justify-center gap-2 rounded-[7px] border border-white/10 bg-white/[0.03] px-3 text-xs font-black text-slate-200 transition hover:bg-white/10"
-        >
-          <Icon name="eye" className="h-4 w-4" /> Preview
-        </button>
-      </div>
-    </article>
-  );
-}
-
-function PreviewModal({ note, saved, onClose, onToggleSave, onDownload }) {
-  useEffect(() => {
-    const onKeyDown = (event) => {
-      if (event.key === 'Escape') onClose();
-    };
-    window.addEventListener('keydown', onKeyDown);
-    return () => window.removeEventListener('keydown', onKeyDown);
-  }, [onClose]);
-
-  return (
-    <div className="fixed inset-0 z-[80] grid place-items-center bg-black/75 p-4 backdrop-blur-sm" role="dialog" aria-modal="true" aria-label={`${note.title} preview`}>
-      <div className="w-full max-w-2xl overflow-hidden rounded-[8px] border border-white/10 bg-[#0b1226] shadow-2xl shadow-black">
-        <div className="flex items-start justify-between gap-4 border-b border-white/10 p-5">
-          <div>
-            <p className="text-xs font-black uppercase tracking-[0.2em] text-cyan-300">{note.type} Resource</p>
-            <h2 className="mt-1 text-2xl font-black text-white">{note.title}</h2>
-          </div>
-          <button type="button" onClick={onClose} aria-label="Close preview" className="grid h-10 w-10 shrink-0 place-items-center rounded-[8px] border border-white/10 text-slate-200 transition hover:bg-white/10">
-            <Icon name="close" />
-          </button>
-        </div>
-
-        <div className="p-5">
-          <p className="text-sm leading-6 text-slate-300">{note.description}</p>
-          <div className="mt-5 grid gap-3 sm:grid-cols-3">
-            <Info label="Language" value={note.language} />
-            <Info label="Pages" value={note.pages} />
-            <Info label="Downloads" value={note.downloads} />
-          </div>
-          <div className="mt-5 overflow-hidden rounded-[8px] border border-white/10 bg-black/30">
-            {note.fileData ? (
-              <iframe title={note.title} src={note.fileData} className="h-[60vh] w-full" />
-            ) : (
-              <div className="grid min-h-[260px] place-items-center px-6 py-12 text-center text-sm text-slate-400">
-                No file preview available. Upload a PDF in the admin panel to enable preview.
-              </div>
-            )}
-          </div>
-          <div className="mt-5">
-            <h3 className="text-sm font-black uppercase text-white">Included Topics</h3>
-            <div className="mt-3 flex flex-wrap gap-2">
-              {note.topics.map((topic) => (
-                <span key={topic} className="rounded-full border border-cyan-300/20 bg-cyan-300/10 px-3 py-1.5 text-xs font-bold text-cyan-200">{topic}</span>
-              ))}
-            </div>
-          </div>
-          <div className="mt-6 flex flex-wrap gap-3">
-            <button type="button" onClick={() => onDownload(note)} className="inline-flex h-11 items-center justify-center gap-2 rounded-[8px] bg-gradient-to-r from-cyan-300 to-violet-500 px-5 text-sm font-black text-white">
-              <Icon name="download" /> Download
-            </button>
-            <button type="button" onClick={() => onToggleSave(note._id)} className={`inline-flex h-11 items-center justify-center gap-2 rounded-[8px] border px-5 text-sm font-black ${saved ? 'border-cyan-300 bg-cyan-300/15 text-cyan-100' : 'border-white/10 text-slate-200 hover:bg-white/10'}`}>
-              <Icon name="file" /> {saved ? 'Saved' : 'Save'}
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function Info({ label, value }) {
-  return (
-    <div className="rounded-[8px] border border-white/10 bg-white/[0.035] p-4">
-      <div className="text-xs font-bold uppercase text-slate-500">{label}</div>
-      <div className="mt-1 text-sm font-black text-white">{value}</div>
-    </div>
-  );
-}
 
 
 

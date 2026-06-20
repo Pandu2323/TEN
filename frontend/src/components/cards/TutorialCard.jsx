@@ -3,6 +3,13 @@ import { buttonPrimary, buttonSecondary, glass } from '../ui/classes.js';
 export default function TutorialCard({ item }) {
   const imageSrc = item.imageData || item.imageUrl || '';
 
+  const openVideo = () => {
+    const url = String(item.videoUrl || '').trim();
+    if (url) {
+      window.open(url, '_blank', 'noopener,noreferrer');
+    }
+  };
+
   return (
     <article className={`${glass} overflow-hidden p-0`}>
       <div className="relative aspect-video bg-neutral-900">
@@ -26,7 +33,9 @@ export default function TutorialCard({ item }) {
           <span>{item.status || 'published'}</span>
         </div>
         <div className="grid grid-cols-2 gap-3">
-          <button className={`${buttonPrimary} px-3 py-2 text-sm`}>Watch</button>
+          <button type="button" onClick={openVideo} disabled={!item.videoUrl} className={`${buttonPrimary} px-3 py-2 text-sm disabled:cursor-not-allowed disabled:opacity-60`}>
+            Watch Now
+          </button>
           <button className={`${buttonSecondary} px-3 py-2 text-sm`}>Save</button>
         </div>
       </div>

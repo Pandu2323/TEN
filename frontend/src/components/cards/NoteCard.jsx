@@ -2,6 +2,7 @@ import { buttonPrimary, buttonSecondary, glass } from '../ui/classes.js';
 
 export default function NoteCard({ item }) {
   const hasFile = Boolean(item.fileData || item.fileUrl);
+  const imageSrc = item.coverImageData || item.imageData || item.imageUrl || '';
 
   function downloadFile() {
     if (item.fileData) {
@@ -37,24 +38,32 @@ export default function NoteCard({ item }) {
   }
 
   return (
-    <article className={`${glass} flex min-h-72 flex-col`}>
-      <div className="mb-5 flex items-center justify-between">
-        <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-white/10 bg-cyan-300/10 text-sm font-bold text-cyan-300">PDF</div>
-        <span className="rounded-full border border-cyan-300/20 bg-cyan-300/10 px-3 py-1 text-xs text-cyan-300">{item.resourceType || item.type || item.category}</span>
+    <article className={`${glass} flex min-h-72 flex-col overflow-hidden p-0`}>
+      <div className="relative border-b border-white/8 bg-[#08101f]">
+        <div className="flex h-40 items-center justify-center overflow-hidden">
+          {imageSrc ? (
+            <img src={imageSrc} alt={item.title} className="h-full w-full object-cover" />
+          ) : (
+            <div className="flex h-full w-full items-center justify-center bg-[radial-gradient(circle_at_center,rgba(34,211,238,0.12),rgba(2,6,23,0.94)_68%)]">
+              <div className="flex h-14 w-14 items-center justify-center rounded-full border border-white/10 bg-cyan-300/10 text-sm font-bold text-cyan-300">PDF</div>
+            </div>
+          )}
+        </div>
+        <div className="absolute left-3 top-3 rounded-[6px] border border-cyan-300/20 bg-black/65 px-2.5 py-1 text-[11px] font-bold uppercase text-cyan-300">
+          {item.resourceType || item.type || item.category}
+        </div>
       </div>
-      <h3 className="mb-2 text-xl font-semibold text-white">{item.title}</h3>
-      <p className="mb-5 flex-1 text-sm leading-6 text-neutral-400">{item.description}</p>
-      <div className="mb-5 flex flex-wrap gap-3 rounded-lg border border-white/[0.05] bg-white/[0.02] px-4 py-3 text-xs text-neutral-400">
-        <span>{item.pages || 10} pages</span>
-        <span>{item.category}</span>
-      </div>
-      <div className="grid grid-cols-2 gap-3">
-        <button type="button" onClick={downloadFile} className={`${buttonPrimary} px-3 py-2 text-sm`}>
-          {hasFile ? 'Download PDF' : 'Download'}
-        </button>
-        <button type="button" onClick={previewFile} className={`${buttonSecondary} px-3 py-2 text-sm`} disabled={!hasFile}>
-          Preview
-        </button>
+      <div className="flex min-h-64 flex-col p-6">
+        <h3 className="mb-3 text-center text-lg font-semibold leading-snug text-white">{item.title}</h3>
+        <p className="mb-5 flex-1 text-center text-sm leading-6 text-neutral-400">{item.description}</p>
+        <div className="grid grid-cols-2 gap-3">
+          <button type="button" onClick={downloadFile} className={`${buttonPrimary} px-3 py-2 text-sm`}>
+            {hasFile ? 'Download PDF' : 'Download'}
+          </button>
+          <button type="button" onClick={previewFile} className={`${buttonSecondary} px-3 py-2 text-sm`} disabled={!hasFile}>
+            Preview
+          </button>
+        </div>
       </div>
     </article>
   );

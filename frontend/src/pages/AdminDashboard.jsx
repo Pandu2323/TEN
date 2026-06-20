@@ -35,6 +35,9 @@ const emptyForms = {
     fileName: '',
     fileType: '',
     fileData: '',
+    coverImageName: '',
+    coverImageType: '',
+    coverImageData: '',
     status: 'published',
     featured: false,
     body: '',
@@ -113,6 +116,9 @@ function serializePayload(collection, form) {
     delete payload.instructor;
     delete payload.modules;
     delete payload.fileUrl;
+    payload.coverImageName = form.coverImageName || '';
+    payload.coverImageType = form.coverImageType || '';
+    payload.coverImageData = form.coverImageData || '';
   }
 
   if (collection === 'tutorials') {
@@ -134,10 +140,13 @@ function serializePayload(collection, form) {
     delete payload.fileUrl;
   }
 
-  if (collection !== 'tutorials') {
+  if (collection === 'roadmaps' || collection === 'resources') {
     delete payload.imageName;
     delete payload.imageType;
     delete payload.imageData;
+    delete payload.coverImageName;
+    delete payload.coverImageType;
+    delete payload.coverImageData;
   }
 
   return payload;
@@ -177,6 +186,9 @@ function hydrateForm(collection, item) {
     next.fileName = item.fileName || '';
     next.fileType = item.fileType || '';
     next.fileData = item.fileData || '';
+    next.coverImageName = item.coverImageName || item.imageName || '';
+    next.coverImageType = item.coverImageType || item.imageType || '';
+    next.coverImageData = item.coverImageData || item.imageData || item.imageUrl || '';
   }
 
   if (collection === 'roadmaps') {
@@ -310,6 +322,31 @@ export default function AdminDashboard() {
       setForm((current) => ({
         ...current,
         ...image,
+      }));
+      setNotice(`Loaded ${file.name}`);
+      setError('');
+    } catch (err) {
+      setError(err.message || 'Failed to read image');
+    }
+  }
+
+  async function handleNoteImageInput(event) {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const allowed = ['image/jpeg', 'image/png', 'image/webp'];
+    if (file.type && !allowed.includes(file.type)) {
+      setError('Please upload a JPG, PNG, or WEBP image for the note cover.');
+      return;
+    }
+
+    try {
+      const image = await readImageFile(file);
+      setForm((current) => ({
+        ...current,
+        coverImageName: image.imageName,
+        coverImageType: image.imageType,
+        coverImageData: image.imageData,
       }));
       setNotice(`Loaded ${file.name}`);
       setError('');
@@ -502,8 +539,8 @@ export default function AdminDashboard() {
                   <Field label="Selected Image">
                     <input className={input} readOnly value={form.imageName || 'No image selected'} />
                   </Field>
-                  <Field label="Video URL">
-                    <input className={input} value={form.videoUrl} onChange={(event) => setForm((current) => ({ ...current, videoUrl: event.target.value }))} placeholder="https://..." />
+                  <Field label="YouTube URL">
+                    <input className={input} value={form.videoUrl} onChange={(event) => setForm((current) => ({ ...current, videoUrl: event.target.value }))} placeholder="https://www.youtube.com/watch?v=..." />
                   </Field>
                 </>
               )}
@@ -527,6 +564,12 @@ export default function AdminDashboard() {
                   </Field>
                   <Field label="Selected File">
                     <input className={input} readOnly value={form.fileName || 'No file selected'} />
+                  </Field>
+                  <Field label="Note Cover Image">
+                    <input className={input} type="file" accept="image/jpeg,image/png,image/webp" onChange={handleNoteImageInput} />
+                  </Field>
+                  <Field label="Selected Image">
+                    <input className={input} readOnly value={form.coverImageName || 'No image selected'} />
                   </Field>
                 </>
               )}

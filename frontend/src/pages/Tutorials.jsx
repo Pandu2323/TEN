@@ -76,6 +76,7 @@ function normalizeTutorial(item) {
     imageName: item.imageName || '',
     imageType: item.imageType || '',
     imageData: item.imageData || item.imageUrl || '',
+    videoUrl: item.videoUrl || '',
   };
 }
 
@@ -193,9 +194,10 @@ function TutorialCard({ tutorial, saved, onToggleSave, onWatch }) {
           <button
             type="button"
             onClick={() => onWatch(tutorial)}
-            className="inline-flex h-11 items-center justify-center gap-2 rounded-[7px] bg-gradient-to-r from-sky-400 to-violet-600 px-4 text-sm font-bold text-white shadow-lg shadow-sky-950/30 transition hover:-translate-y-0.5"
+            disabled={!tutorial.videoUrl}
+            className="inline-flex h-11 items-center justify-center gap-2 rounded-[7px] bg-gradient-to-r from-sky-400 to-violet-600 px-4 text-sm font-bold text-white shadow-lg shadow-sky-950/30 transition hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-60"
           >
-            <Icon name="play" className="h-4 w-4" /> Watch Now
+            <Icon name="play" className="h-4 w-4" /> {tutorial.videoUrl ? 'Watch Now' : 'No Video'}
           </button>
           <button
             type="button"
@@ -262,6 +264,16 @@ export default function Tutorials() {
     } catch (_error) {
       navigate('/login');
     }
+  };
+
+  const openTutorialVideo = (tutorial) => {
+    const url = String(tutorial?.videoUrl || '').trim();
+    if (url) {
+      window.open(url, '_blank', 'noopener,noreferrer');
+      return;
+    }
+
+    setActiveTutorial(tutorial);
   };
 
   const clearFilters = () => {
@@ -370,7 +382,7 @@ export default function Tutorials() {
                 tutorial={tutorial}
                 saved={savedIds.has(tutorial._id)}
                 onToggleSave={toggleSave}
-                onWatch={setActiveTutorial}
+                onWatch={openTutorialVideo}
               />
             ))}
           </div>
@@ -533,14 +545,28 @@ function WatchModal({ tutorial, saved, onClose, onToggleSave }) {
               <span>{tutorial.instructor}</span>
             </div>
           </div>
-          <button
-            type="button"
-            onClick={() => onToggleSave(tutorial._id)}
-            className={`inline-flex h-11 items-center justify-center gap-2 rounded-[8px] border px-5 text-sm font-bold transition ${saved ? 'border-violet-300 bg-violet-500/20 text-violet-100' : 'border-white/10 bg-white/[0.04] text-white hover:bg-white/10'}`}
-          >
-            <Icon name="bookmark" className={`h-5 w-5 ${saved ? 'fill-current' : ''}`} />
-            {saved ? 'Saved' : 'Save'}
-          </button>
+          <div className="flex flex-wrap gap-3 md:justify-end">
+            <button
+              type="button"
+              onClick={() => {
+                const url = String(tutorial.videoUrl || '').trim();
+                if (url) window.open(url, '_blank', 'noopener,noreferrer');
+              }}
+              disabled={!tutorial.videoUrl}
+              className="inline-flex h-11 items-center justify-center gap-2 rounded-[8px] bg-gradient-to-r from-sky-400 to-violet-600 px-5 text-sm font-bold text-white transition disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              <Icon name="play" className="h-5 w-5" />
+              {tutorial.videoUrl ? 'Open Video' : 'No Video'}
+            </button>
+            <button
+              type="button"
+              onClick={() => onToggleSave(tutorial._id)}
+              className={`inline-flex h-11 items-center justify-center gap-2 rounded-[8px] border px-5 text-sm font-bold transition ${saved ? 'border-violet-300 bg-violet-500/20 text-violet-100' : 'border-white/10 bg-white/[0.04] text-white hover:bg-white/10'}`}
+            >
+              <Icon name="bookmark" className={`h-5 w-5 ${saved ? 'fill-current' : ''}`} />
+              {saved ? 'Saved' : 'Save'}
+            </button>
+          </div>
         </div>
       </div>
     </div>
