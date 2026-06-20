@@ -46,7 +46,7 @@ export default function Home() {
 
   const stats = useMemo(() => ([
     { value: tutorials.items.length, label: 'Tutorials' },
-    { value: notes.items.length, label: 'Notes & PDFs' },
+    { value: notes.items.length, label: 'Resources' },
     { value: roadmaps.items.length, label: 'Roadmaps' },
   ]), [notes.items.length, roadmaps.items.length, tutorials.items.length]);
 
@@ -61,17 +61,17 @@ export default function Home() {
         <div className={`${shell} relative py-16 text-center`}>
           <div className="mx-auto max-w-4xl">
             <div className="mb-5 inline-flex rounded-full border border-white/10 bg-white/[0.03] px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-cyan-300">
-              Live content from the admin dashboard
+              The Epoch Nova
             </div>
             <h1 className="text-5xl font-black leading-tight text-white md:text-6xl">
-              Learn with <span className={gradientText}>dynamic tutorials, notes, and roadmaps</span>
+              Code the Future. <span className={gradientText}>Scale with the Cloud. Innovate with AI.</span>
             </h1>
             <p className="mx-auto mt-5 max-w-3xl text-base leading-8 text-slate-300 md:text-lg">
-              Every card on this site is loaded from the database, so the homepage always reflects the latest content the admin has published.
+              The platform where developers learn, build, and launch next-generation applications powered by AI and cloud technologies.
             </p>
             <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
-              <Link href="/tutorials" className={buttonPrimary}>Browse Tutorials</Link>
-              <Link href="/notes" className={buttonSecondary}>Open Notes Library</Link>
+              <Link href="/tutorials" className={buttonPrimary}>Get Started</Link>
+              <Link href="/notes" className={buttonSecondary}>Open Library</Link>
             </div>
           </div>
         </div>
@@ -87,21 +87,21 @@ export default function Home() {
 
       <section className="py-16">
         <div className={shell}>
-          <SectionHeader title="Latest" accent="Tutorials" subtitle="Fresh tutorial cards pulled directly from the backend." />
+          <SectionHeader title="Featured" accent="Tutorials" subtitle="Latest tutorials curated to help you master modern technologies." />
           <ContentGrid type="tutorials" items={featuredTutorials} emptyTitle="No tutorials published yet" />
         </div>
       </section>
 
       <section className="py-16">
         <div className={shell}>
-          <SectionHeader title="Latest" accent="Notes & PDFs" subtitle="Downloadable notes and PDFs managed by the admin." />
+          <SectionHeader title="Latest" accent="Resources" subtitle="Explore expert-curated notes, PDFs, and learning materials in one place." />
           <ContentGrid type="notes" items={featuredNotes} emptyTitle="No notes published yet" />
         </div>
       </section>
 
       <section className="py-16">
         <div className={shell}>
-          <SectionHeader title="Latest" accent="Roadmaps" subtitle="Structured learning paths from the live content collection." />
+          <SectionHeader title="Top" accent="Roadmaps" subtitle="Roadmaps for tomorrow's innovators, built for success." />
           {featuredRoadmaps.length ? (
             <div className="grid gap-6 lg:grid-cols-2">
               {featuredRoadmaps.map((roadmap) => <RoadmapPreviewCard key={roadmap._id} roadmap={roadmap} />)}
