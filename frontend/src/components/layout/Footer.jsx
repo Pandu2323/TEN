@@ -1,11 +1,12 @@
 ﻿import Link from '../ui/Link.jsx';
 import BrandMark from '../ui/BrandMark.jsx';
 import { shell } from '../ui/classes.js';
+import { FaYoutube, FaGithub, FaLinkedinIn, FaInstagram } from "react-icons/fa";
 
 const footerGroups = [
   { title: 'Quick Links', links: ['Home', 'Tutorials', 'Notes', 'Roadmaps'] },
   { title: 'Resources', links: ['Java Tutorials', 'SQL Databases', 'DSA Guides', 'Web Development', 'DevOps Systems'] },
-  { title: 'Contact', links: ['About Us', 'Contact Us', 'Privacy Policy', 'Terms of Service'] },
+  { title: 'Contact', links: ['About Us', 'Contact Us'] },
 ];
 
 export default function Footer() {
@@ -18,15 +19,27 @@ export default function Footer() {
               <BrandMark compact />
             </Link>
             <p className="max-w-sm text-sm leading-6 text-neutral-400">
-              Your gateway to mastering technology. Learn programming, software engineering and DevOps with premium structured guides.
+              Learn Today. Lead Tomorrow.
+              Your journey to tech excellence starts here.
             </p>
-            <div className="flex gap-3">
-              {['YT', 'GH', 'X', 'in'].map((item) => (
-                <a key={item} className="flex h-9 w-9 items-center justify-center rounded-full border border-white/10 bg-white/[0.03] text-xs text-neutral-300 transition hover:-translate-y-0.5 hover:bg-cyan-300 hover:text-black">
-                  {item}
-                </a>
-              ))}
-            </div>
+    <div className="flex gap-3">
+  {[
+    { icon: <FaYoutube />, url: "https://www.youtube.com/channel/UCdsgdHQ1wFtKoQ_XWThLKwQ" },
+    { icon: <FaGithub /> },
+    { icon: <FaInstagram />, url: "https://www.instagram.com/ten.official985/" },
+    { icon: <FaLinkedinIn /> }
+  ].map((item, index) => (
+    <a
+      key={index}
+      href={item.url || "#"}
+      target={item.url ? "_blank" : undefined}
+      rel={item.url ? "noopener noreferrer" : undefined}
+      className="flex h-9 w-9 items-center justify-center rounded-full border border-white/10 bg-white/[0.03] text-lg text-neutral-300 transition hover:-translate-y-0.5 hover:bg-gray-300 hover:text-black"
+    >
+      {item.icon}
+    </a>
+  ))}
+</div>
           </div>
 
           {footerGroups.map((group) => (
