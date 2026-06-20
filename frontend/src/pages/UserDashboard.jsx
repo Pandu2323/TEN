@@ -99,7 +99,7 @@ function AccessPrompt() {
 
 export default function UserDashboard() {
   const auth = useAuth();
-  const { savedItems, savedIds } = useSavedContent(auth?.token);
+  const { savedByType, savedCount, savedIds, refresh } = useSavedContent(auth?.token);
   const [summary, setSummary] = useState(null);
   const [section, setSection] = useState('overview');
 
@@ -110,6 +110,11 @@ export default function UserDashboard() {
       .catch(() => setSummary(null));
   }, [auth?.token]);
 
+  useEffect(() => {
+    if (!auth?.token) return;
+    refresh();
+  }, [auth?.token, refresh]);
+
   const profileName = summary?.profile?.name || auth?.user?.name || 'User';
   const profileEmail = summary?.profile?.email || auth?.user?.email || 'user@example.com';
   const roleLabel = auth?.user?.role === 'admin' ? 'Administrator' : 'Learner';
@@ -119,18 +124,21 @@ export default function UserDashboard() {
 
   const summarySaved = summary?.saved || {};
   const savedTutorials = useMemo(() => {
+    const hookItems = Array.isArray(savedByType.tutorials) ? savedByType.tutorials : [];
     const summaryItems = Array.isArray(summarySaved.tutorials) ? summarySaved.tutorials : [];
-    return summaryItems.length ? summaryItems : savedItems.filter((item) => item.type === 'tutorials');
-  }, [savedItems, summarySaved.tutorials]);
+    return hookItems.length ? hookItems : summaryItems;
+  }, [savedByType.tutorials, summarySaved.tutorials]);
   const savedNotes = useMemo(() => {
+    const hookItems = Array.isArray(savedByType.notes) ? savedByType.notes : [];
     const summaryItems = Array.isArray(summarySaved.notes) ? summarySaved.notes : [];
-    return summaryItems.length ? summaryItems : savedItems.filter((item) => item.type === 'notes');
-  }, [savedItems, summarySaved.notes]);
+    return hookItems.length ? hookItems : summaryItems;
+  }, [savedByType.notes, summarySaved.notes]);
   const savedRoadmaps = useMemo(() => {
+    const hookItems = Array.isArray(savedByType.roadmaps) ? savedByType.roadmaps : [];
     const summaryItems = Array.isArray(summarySaved.roadmaps) ? summarySaved.roadmaps : [];
-    return summaryItems.length ? summaryItems : savedItems.filter((item) => item.type === 'roadmaps');
-  }, [savedItems, summarySaved.roadmaps]);
-  const savedCount = savedItems.length || summarySaved?.ids?.length || savedIds.size;
+    return hookItems.length ? hookItems : summaryItems;
+  }, [savedByType.roadmaps, summarySaved.roadmaps]);
+  const totalSavedCount = savedCount || summarySaved?.ids?.length || savedIds.size;
   const savedRoadmapCount = savedRoadmaps.length;
 
   if (!auth?.token) {
@@ -141,7 +149,7 @@ export default function UserDashboard() {
     { label: 'Available Tutorials', value: summary?.available?.tutorials ?? 0 },
     { label: 'Available Notes', value: summary?.available?.notes ?? 0 },
     { label: 'Saved Roadmaps', value: savedRoadmapCount },
-    { label: 'Saved Items', value: savedCount },
+    { label: 'Saved Items', value: totalSavedCount },
   ];
 
   return (
@@ -254,7 +262,7 @@ export default function UserDashboard() {
                 <InfoLine label="Member Since" value={memberSince} />
                 <InfoLine label="Last Login" value={lastLogin} />
                 <InfoLine label="Role" value={roleLabel} />
-                <InfoLine label="Saved Items" value={savedCount} />
+                <InfoLine label="Saved Items" value={totalSavedCount} />
                 <InfoLine label="Saved Roadmaps" value={savedRoadmapCount} />
               </div>
             </section>

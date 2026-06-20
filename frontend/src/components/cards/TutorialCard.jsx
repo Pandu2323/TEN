@@ -1,12 +1,20 @@
 import { buttonPrimary, buttonSecondary, glass } from '../ui/classes.js';
 
 export default function TutorialCard({ item }) {
+  const imageSrc = item.imageData || item.imageUrl || '';
+
   return (
     <article className={`${glass} overflow-hidden p-0`}>
       <div className="relative aspect-video bg-neutral-900">
-        <div className="absolute inset-0 flex items-center justify-center bg-[radial-gradient(circle_at_center,rgba(123,97,255,0.22),rgba(10,10,10,0.96)_60%)]">
-          <span className="text-lg font-bold tracking-wider text-cyan-300">PLAY</span>
-        </div>
+        {imageSrc ? (
+          <img src={imageSrc} alt={item.title} className="absolute inset-0 h-full w-full object-cover" />
+        ) : (
+          <div className="absolute inset-0 flex items-center justify-center bg-[radial-gradient(circle_at_center,rgba(123,97,255,0.18),rgba(10,10,10,0.96)_64%)]">
+            <div className="rounded-xl border border-white/10 bg-black/30 px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-slate-300">
+              No image uploaded
+            </div>
+          </div>
+        )}
         <span className="absolute left-3 top-3 rounded bg-gradient-to-r from-cyan-300 to-violet-500 px-3 py-1 text-xs font-bold uppercase text-black">{item.category}</span>
         <span className="absolute bottom-3 right-3 rounded border border-white/10 bg-black/70 px-2 py-1 text-xs text-white">{item.duration || '30 min'}</span>
       </div>

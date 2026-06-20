@@ -18,6 +18,9 @@ const emptyForms = {
     instructor: '',
     status: 'published',
     featured: false,
+    imageName: '',
+    imageType: '',
+    imageData: '',
     videoUrl: '',
     body: '',
   },
@@ -131,6 +134,12 @@ function serializePayload(collection, form) {
     delete payload.fileUrl;
   }
 
+  if (collection !== 'tutorials') {
+    delete payload.imageName;
+    delete payload.imageType;
+    delete payload.imageData;
+  }
+
   return payload;
 }
 
@@ -154,6 +163,9 @@ function hydrateForm(collection, item) {
     next.minutes = item.minutes ?? '';
     next.lessons = item.lessons ?? '';
     next.instructor = item.instructor || '';
+    next.imageName = item.imageName || '';
+    next.imageType = item.imageType || '';
+    next.imageData = item.imageData || item.imageUrl || '';
     next.videoUrl = item.videoUrl || '';
   }
 
@@ -210,6 +222,15 @@ function readFileAsDataURL(file) {
     reader.onerror = () => reject(new Error('Failed to read file'));
     reader.readAsDataURL(file);
   });
+}
+
+async function readImageFile(file) {
+  const imageData = await readFileAsDataURL(file);
+  return {
+    imageName: file.name,
+    imageType: file.type || 'image/*',
+    imageData,
+  };
 }
 
 export default function AdminDashboard() {
@@ -277,6 +298,23 @@ export default function AdminDashboard() {
       setError('');
     } catch (err) {
       setError(err.message || 'Failed to read file');
+    }
+  }
+
+  async function handleTutorialImageInput(event) {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    try {
+      const image = await readImageFile(file);
+      setForm((current) => ({
+        ...current,
+        ...image,
+      }));
+      setNotice(`Loaded ${file.name}`);
+      setError('');
+    } catch (err) {
+      setError(err.message || 'Failed to read image');
     }
   }
 
@@ -457,6 +495,12 @@ export default function AdminDashboard() {
                   </Field>
                   <Field label="Instructor">
                     <input className={input} value={form.instructor} onChange={(event) => setForm((current) => ({ ...current, instructor: event.target.value }))} placeholder="Instructor name" />
+                  </Field>
+                  <Field label="Tutorial Image">
+                    <input className={input} type="file" accept="image/*" onChange={handleTutorialImageInput} />
+                  </Field>
+                  <Field label="Selected Image">
+                    <input className={input} readOnly value={form.imageName || 'No image selected'} />
                   </Field>
                   <Field label="Video URL">
                     <input className={input} value={form.videoUrl} onChange={(event) => setForm((current) => ({ ...current, videoUrl: event.target.value }))} placeholder="https://..." />

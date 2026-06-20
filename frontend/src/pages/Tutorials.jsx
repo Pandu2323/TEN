@@ -69,6 +69,9 @@ function normalizeTutorial(item) {
     icon: item.icon || iconForCategory(category),
     instructor: item.instructor || item.author || 'The Epoch Nova',
     lessons: item.lessons || 0,
+    imageName: item.imageName || '',
+    imageType: item.imageType || '',
+    imageData: item.imageData || item.imageUrl || '',
   };
 }
 
@@ -140,12 +143,17 @@ function TutorialVisual({ icon }) {
 
 function TutorialCard({ tutorial, saved, onToggleSave, onWatch }) {
   const levelColor = tutorial.level === 'Advanced' ? 'text-orange-400' : tutorial.level === 'Intermediate' ? 'text-sky-400' : 'text-emerald-400';
+  const imageSrc = tutorial.imageData || tutorial.imageUrl || '';
 
   return (
     <article className="group overflow-hidden rounded-[8px] border border-white/10 bg-[#0c1326]/88 shadow-2xl shadow-black/30 transition duration-300 hover:-translate-y-1 hover:border-violet-400/50 hover:shadow-violet-950/40">
       <div className="relative h-40 overflow-hidden bg-[#0a1024]">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_18%_18%,rgba(124,58,237,0.28),transparent_32%),radial-gradient(circle_at_74%_72%,rgba(14,165,233,0.22),transparent_40%),linear-gradient(135deg,rgba(59,7,100,0.55),rgba(2,6,23,0.86))]" />
-        <div className="absolute inset-0 bg-[linear-gradient(135deg,transparent_0_48%,rgba(255,255,255,0.05)_49%,transparent_50%)] bg-[length:34px_34px] opacity-20" />
+        {imageSrc ? (
+          <img src={imageSrc} alt={tutorial.title} className="absolute inset-0 h-full w-full object-cover" />
+        ) : (
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_18%_18%,rgba(124,58,237,0.18),transparent_32%),radial-gradient(circle_at_74%_72%,rgba(14,165,233,0.16),transparent_40%),linear-gradient(135deg,rgba(59,7,100,0.45),rgba(2,6,23,0.9))]" />
+        )}
+        <div className="absolute inset-0 bg-[linear-gradient(180deg,transparent_0%,rgba(2,6,23,0.10)_35%,rgba(2,6,23,0.72)_100%)]" />
         <span className="absolute left-4 top-4 rounded-[6px] bg-gradient-to-r from-sky-400 to-violet-600 px-3 py-2 text-xs font-bold uppercase text-white shadow-lg shadow-violet-950/40">
           {categoryLabels[tutorial.category] || tutorial.category}
         </span>
@@ -157,9 +165,13 @@ function TutorialCard({ tutorial, saved, onToggleSave, onWatch }) {
         >
           <Icon name="bookmark" className={`h-5 w-5 ${saved ? 'fill-current' : ''}`} />
         </button>
-        <div className="absolute inset-0 grid place-items-center">
-          <TutorialVisual icon={tutorial.icon} />
-        </div>
+        {!imageSrc && (
+          <div className="absolute inset-0 grid place-items-center">
+            <div className="rounded-[10px] border border-white/10 bg-black/25 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-300">
+              No image uploaded
+            </div>
+          </div>
+        )}
         <span className="absolute bottom-4 right-4 rounded-[6px] bg-black/75 px-3 py-1.5 text-xs font-bold text-white">
           {tutorial.duration}
         </span>
@@ -498,9 +510,13 @@ function WatchModal({ tutorial, saved, onClose, onToggleSave }) {
           </button>
         </div>
         <div className="grid aspect-video place-items-center bg-[radial-gradient(circle_at_center,rgba(124,58,237,0.22),rgba(2,6,23,0.96)_62%)]">
-          <button type="button" className="grid h-20 w-20 place-items-center rounded-full bg-gradient-to-r from-sky-400 to-violet-600 text-white shadow-[0_0_70px_rgba(124,58,237,0.55)]">
-            <Icon name="play" className="h-9 w-9 translate-x-0.5" />
-          </button>
+          {tutorial.imageData || tutorial.imageUrl ? (
+            <img src={tutorial.imageData || tutorial.imageUrl} alt={tutorial.title} className="h-full w-full object-cover" />
+          ) : (
+            <button type="button" className="grid h-20 w-20 place-items-center rounded-full bg-gradient-to-r from-sky-400 to-violet-600 text-white shadow-[0_0_70px_rgba(124,58,237,0.55)]">
+              <Icon name="play" className="h-9 w-9 translate-x-0.5" />
+            </button>
+          )}
         </div>
         <div className="grid gap-5 p-5 md:grid-cols-[1fr_auto] md:items-center">
           <div>

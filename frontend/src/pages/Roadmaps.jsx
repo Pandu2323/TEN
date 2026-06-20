@@ -40,7 +40,7 @@ function normalizeRoadmap(roadmap, index) {
   const steps = Array.isArray(roadmap.steps) ? roadmap.steps : String(roadmap.steps || '').split('\n').map((line) => line.trim()).filter(Boolean);
   const outcomes = Array.isArray(roadmap.outcomes) ? roadmap.outcomes : [];
   const title = roadmap.title || 'Untitled Roadmap';
-  const id = roadmap._id || roadmap.slug || title.toLowerCase().replace(/\\W+/g, '-');
+  const id = roadmap._id || roadmap.slug || title.toLowerCase().replace(/\W+/g, '-');
 
   return {
     ...roadmap,

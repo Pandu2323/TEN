@@ -107,10 +107,12 @@ router.get('/dashboard/saved-items', requireAuth, async (req, res, next) => {
     }
 
     const savedItems = Array.isArray(user.savedItems) ? user.savedItems : [];
+    const savedByType = splitSavedItems(savedItems);
     res.json({
       items: savedItems,
       ids: savedItems.map((item) => item._id),
       counts: countByType(savedItems),
+      savedByType,
     });
   } catch (error) {
     next(error);
@@ -183,6 +185,7 @@ router.post('/dashboard/saved-items', requireAuth, async (req, res, next) => {
       item: content,
       ids: savedItems.map((item) => item._id),
       savedItems,
+      savedByType,
       counts: countByType(savedItems),
     });
   } catch (error) {
@@ -200,11 +203,13 @@ router.delete('/dashboard/saved-items/:contentId', requireAuth, async (req, res,
 
     const refreshed = await loadDashboardUser(req.user._id);
     const savedItems = Array.isArray(refreshed?.savedItems) ? refreshed.savedItems : [];
+    const savedByType = splitSavedItems(savedItems);
 
     res.json({
       saved: false,
       ids: savedItems.map((item) => item._id),
       savedItems,
+      savedByType,
       counts: countByType(savedItems),
     });
   } catch (error) {
