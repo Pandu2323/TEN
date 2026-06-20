@@ -8,20 +8,24 @@ const fallbackTutorials = [];
 
 const categoryOptions = [
   { id: 'all', label: 'All' },
+  {id:'cs',label:'Core CSE'},
   { id: 'java', label: 'Java' },
-  { id: 'sql', label: 'SQL' },
+  { id: 'sql', label: 'Databases' },
   { id: 'dsa', label: 'DSA' },
-  { id: 'development', label: 'Development' },
-  { id: 'devops', label: 'DevOps' },
+  { id: 'development', label: 'Web Development' },
+  { id: 'devops', label: 'Cloud & DevOps' },
+  {id:'ai',label:'Artificial Intelligence'},
+  {id:'ml',label:'Machine Learning'},
+  {id:'cb',label:'Cybersecurity'},
 ];
 
-const levelOptions = ['All Levels', 'Beginner', 'Intermediate', 'Advanced'];
+/*const levelOptions = ['All Levels', 'Beginner', 'Intermediate', 'Advanced'];
 const sortOptions = [
   { value: 'popular', label: 'Most Popular' },
   { value: 'newest', label: 'Newest' },
   { value: 'duration-asc', label: 'Shortest' },
   { value: 'duration-desc', label: 'Longest' },
-];
+];*/
 
 const categoryLabels = Object.fromEntries(categoryOptions.map((category) => [category.id, category.label]));
 
@@ -277,10 +281,10 @@ export default function Tutorials() {
         <HeroArt />
         <div className="mx-auto max-w-3xl text-center">
           <h1 className="text-5xl font-black leading-tight sm:text-6xl">
-            Our <span className="bg-gradient-to-r from-cyan-300 via-blue-400 to-violet-500 bg-clip-text text-transparent">Tutorials</span>
+            Master <span className="bg-gradient-to-r from-cyan-300 via-blue-400 to-violet-500 bg-clip-text text-transparent">Tech Skills</span>
           </h1>
           <p className="mx-auto mt-4 max-w-2xl text-lg leading-8 text-slate-300">
-            Comprehensive video tutorials and articles to help you master technology skills.
+            Master in-demand technology skills through expert-led tutorials, practical guides, and structured learning paths.
           </p>
         </div>
       </section>
@@ -346,7 +350,7 @@ export default function Tutorials() {
           )}
         </div>
       </section>
-
+      {/*
       <section className="relative mx-auto w-full max-w-7xl px-5 py-3 sm:px-6 lg:px-8">
         <div className="grid rounded-[8px] border border-white/10 bg-[#0b1226]/82 shadow-2xl shadow-black/25 sm:grid-cols-2 lg:grid-cols-4">
           <Stat icon="play" value="500+" label="Video Tutorials" tone="violet" />
@@ -354,7 +358,7 @@ export default function Tutorials() {
           <Stat icon="users" value="120K+" label="Happy Learners" tone="emerald" />
           <Stat icon="clock" value="10K+" label="Hours of Content" tone="amber" />
         </div>
-      </section>
+      </section>*/}
 
       <section className="relative mx-auto w-full max-w-7xl px-5 py-6 sm:px-6 lg:px-8">
         {loading && <p className="mb-4 text-sm text-slate-400">Refreshing tutorials...</p>}
@@ -381,7 +385,7 @@ export default function Tutorials() {
         <Pagination page={page} totalPages={totalPages} setPage={setPage} />
       </section>
 
-      <section className="relative mx-auto w-full max-w-7xl px-5 pb-8 pt-2 sm:px-6 lg:px-8">
+     {/* <section className="relative mx-auto w-full max-w-7xl px-5 pb-8 pt-2 sm:px-6 lg:px-8">
         <div className="grid rounded-[8px] border border-white/10 bg-[#0b1226]/86 shadow-2xl shadow-black/25 md:grid-cols-2 lg:grid-cols-4">
           <Benefit icon="cap" title="Expert Instructors" text="Learn from industry professionals" tone="violet" />
           <Benefit icon="play" title="Practical Content" text="Real-world projects and examples" tone="sky" />
@@ -389,6 +393,7 @@ export default function Tutorials() {
           <Benefit icon="users" title="Active Community" text="Join thousands of learners" tone="emerald" />
         </div>
       </section>
+     */}
 
       {activeTutorial && (
         <WatchModal
